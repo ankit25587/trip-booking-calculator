@@ -8,6 +8,7 @@ from booking import (
     calculate_tax,
     get_price_category,
     format_booking_summary,
+    calculate_final_price,
 )
 
 
@@ -49,6 +50,15 @@ def test_format_booking_summary_contains_trip_name():
     assert "Paris Adventure" in result
 
 
+def test_calculate_final_price_includes_discount_and_tax():
+    """Test complete calculation: 3 nights, 2 guests, January (15% discount), France (20% tax).
+
+    Calculation: (100 * 3 * 2) * 0.85 + tax = 600 * 0.85 + (510 * 0.20) = 510 + 102 = 612.0
+    """
+    result = calculate_final_price(100, 3, 2, 1, "france")
+    assert result == 612.0
+
+
 # ── Edge Case Tests ───────────────────────────────────────────────────────────
 
 def test_calculate_total_price_zero_nights_raises():
@@ -85,3 +95,27 @@ def test_calculate_tax_unknown_country_raises():
     """Unknown country must raise ValueError."""
     with pytest.raises(ValueError):
         calculate_tax(500, "mars")
+
+
+def test_calculate_final_price_zero_nights_raises():
+    """zero nights must raise ValueError."""
+    with pytest.raises(ValueError):
+        calculate_final_price(100, 0, 2, 1, "france")
+
+
+def test_calculate_final_price_zero_guests_raises():
+    """zero guests must raise ValueError."""
+    with pytest.raises(ValueError):
+        calculate_final_price(100, 3, 0, 1, "france")
+
+
+def test_calculate_final_price_invalid_month_raises():
+    """month=13 must raise ValueError."""
+    with pytest.raises(ValueError):
+        calculate_final_price(100, 3, 2, 13, "france")
+
+
+def test_calculate_final_price_invalid_country_raises():
+    """Unknown country must raise ValueError."""
+    with pytest.raises(ValueError):
+        calculate_final_price(100, 3, 2, 1, "mars")
